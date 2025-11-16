@@ -8,11 +8,17 @@ P(Rain=none) = 0.7
 P(Rain=light) = 0.2
 P(Rain=heavy) = 0.1
 
-# Maintenance (nodo raíz, sin padres)
+# Maintenance (depende de Rain)
 [Maintenance]
 values: yes, no
-P(Maintenance=yes) = 0.4
-P(Maintenance=no) = 0.6
+parents: Rain
+# P(Maintenance | Rain)
+P(Maintenance=yes | Rain=none) = 0.4
+P(Maintenance=no | Rain=none) = 0.6
+P(Maintenance=yes | Rain=light) = 0.2
+P(Maintenance=no | Rain=light) = 0.8
+P(Maintenance=yes | Rain=heavy) = 0.1
+P(Maintenance=no | Rain=heavy) = 0.9
 
 # Train (depende de Rain y Maintenance)
 [Train]

@@ -131,6 +131,11 @@ class MotorInferencia:
         
         suma_total = sum(resultados.values())
         self.agregar_traza(f"Suma total (α⁻¹): {suma_total:.6f}")
+        
+        if suma_total == 0:
+            self.agregar_traza("ERROR: La suma total es 0. Verifica las probabilidades en las tablas.")
+            return {valor: 0 for valor in resultados.keys()}
+        
         self.agregar_traza(f"Constante de normalización (α): {1/suma_total:.6f}")
         self.agregar_traza("")
         
