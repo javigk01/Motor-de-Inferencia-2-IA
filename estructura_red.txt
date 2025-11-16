@@ -1,0 +1,8 @@
+# Estructura de la Red Bayesiana
+# Formato: Nodo_Padre -> Nodo_Hijo
+# Un nodo sin padres (raíz) no aparece como hijo
+
+Rain -> Maintenance
+Rain -> Train
+Maintenance -> Train
+Train -> Appointment

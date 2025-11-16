@@ -1,0 +1,43 @@
+# Tablas de Probabilidad Condicional
+# Formato: Nodo | Valores_posibles | Padres (si tiene) | Probabilidades
+
+# Rain (nodo raíz, sin padres)
+[Rain]
+values: none, light, heavy
+P(Rain=none) = 0.7
+P(Rain=light) = 0.2
+P(Rain=heavy) = 0.1
+
+# Maintenance (nodo raíz, sin padres)
+[Maintenance]
+values: yes, no
+P(Maintenance=yes) = 0.4
+P(Maintenance=no) = 0.6
+
+# Train (depende de Rain y Maintenance)
+[Train]
+values: on_time, delayed
+parents: Rain, Maintenance
+# P(Train | Rain, Maintenance)
+P(Train=on_time | Rain=none, Maintenance=yes) = 0.8
+P(Train=delayed | Rain=none, Maintenance=yes) = 0.2
+P(Train=on_time | Rain=none, Maintenance=no) = 0.9
+P(Train=delayed | Rain=none, Maintenance=no) = 0.1
+P(Train=on_time | Rain=light, Maintenance=yes) = 0.6
+P(Train=delayed | Rain=light, Maintenance=yes) = 0.4
+P(Train=on_time | Rain=light, Maintenance=no) = 0.7
+P(Train=delayed | Rain=light, Maintenance=no) = 0.3
+P(Train=on_time | Rain=heavy, Maintenance=yes) = 0.4
+P(Train=delayed | Rain=heavy, Maintenance=yes) = 0.6
+P(Train=on_time | Rain=heavy, Maintenance=no) = 0.5
+P(Train=delayed | Rain=heavy, Maintenance=no) = 0.5
+
+# Appointment (depende de Train)
+[Appointment]
+values: attend, miss
+parents: Train
+# P(Appointment | Train)
+P(Appointment=attend | Train=on_time) = 0.9
+P(Appointment=miss | Train=on_time) = 0.1
+P(Appointment=attend | Train=delayed) = 0.6
+P(Appointment=miss | Train=delayed) = 0.4
