@@ -29,21 +29,29 @@ def imprimir_titulo(titulo):
 
 def imprimir_resultados(resultados):
     """
-    Imprime los resultados de una inferencia en formato tabla.
+    Imprime los resultados de una inferencia en formato tabla, incluyendo las probabilidades parciales (no normalizadas) si están disponibles.
     
     Args:
-        resultados (dict): Diccionario con los resultados de la inferencia
+        resultados (dict): Diccionario con los resultados de la inferencia (normalizados)
+        parciales (dict, opcional): Diccionario con las probabilidades parciales (no normalizadas)
     """
-    print("\n" + "─"*50)
+    parciales = None
+    if isinstance(resultados, tuple) and len(resultados) == 2:
+        resultados, parciales = resultados
+    print("\n" + "─"*70)
     print("RESULTADOS DE LA INFERENCIA")
-    print("─"*50)
-    print(f"{'Valor':<20} {'Probabilidad':<15} {'Porcentaje':<15}")
-    print("─"*50)
-    
+    print("─"*70)
+    encabezado = f"{'Valor':<20} {'Probabilidad':<15} {'Porcentaje':<15}"
+    if parciales:
+        encabezado += f"{'Parcial':<15}"
+    print(encabezado)
+    print("─"*70)
     for valor, prob in sorted(resultados.items(), key=lambda x: x[1], reverse=True):
-        print(f"{valor:<20} {prob:<15.6f} {prob*100:<14.2f}%")
-    
-    print("─"*50 + "\n")
+        fila = f"{valor:<20} {prob:<15.6f} {prob*100:<14.2f}%"
+        if parciales:
+            fila += f"{parciales.get(valor, 0):<15.6f}"
+        print(fila)
+    print("─"*70 + "\n")
 
 def ejecutar_ejemplo_basico():
     """
@@ -82,10 +90,10 @@ def ejecutar_ejemplo_basico():
     print()
     
     evidencia1 = {'Rain': 'light', 'Maintenance': 'yes'}
-    resultado1 = motor.inferencia({'Appointment': None}, evidencia1)
+    resultado1, parciales1 = motor.inferencia({'Appointment': None}, evidencia1, return_parciales=True)
     
     motor.mostrar_traza()
-    imprimir_resultados(resultado1)
+    imprimir_resultados((resultado1, parciales1))
     
     # Interpretación
     print("INTERPRETACIÓN:")
@@ -106,10 +114,10 @@ def ejecutar_ejemplo_basico():
     print()
     
     evidencia2 = {}
-    resultado2 = motor.inferencia({'Train': None}, evidencia2)
+    resultado2, parciales2 = motor.inferencia({'Train': None}, evidencia2, return_parciales=True)
     
     motor.mostrar_traza()
-    imprimir_resultados(resultado2)
+    imprimir_resultados((resultado2, parciales2))
     
     print("INTERPRETACIÓN:")
     print(f"  Sin información adicional, la probabilidad de que el tren llegue a tiempo es")
@@ -129,10 +137,10 @@ def ejecutar_ejemplo_basico():
     print()
     
     evidencia3 = {'Rain': 'none'}
-    resultado3 = motor.inferencia({'Train': None}, evidencia3)
+    resultado3, parciales3 = motor.inferencia({'Train': None}, evidencia3, return_parciales=True)
     
     motor.mostrar_traza()
-    imprimir_resultados(resultado3)
+    imprimir_resultados((resultado3, parciales3))
     
     print("INTERPRETACIÓN:")
     print(f"  Sin lluvia, la probabilidad de que el tren llegue a tiempo es")
@@ -152,10 +160,10 @@ def ejecutar_ejemplo_basico():
     print()
     
     evidencia4 = {'Rain': 'heavy'}
-    resultado4 = motor.inferencia({'Appointment': None}, evidencia4)
+    resultado4, parciales4 = motor.inferencia({'Appointment': None}, evidencia4, return_parciales=True)
     
     motor.mostrar_traza()
-    imprimir_resultados(resultado4)
+    imprimir_resultados((resultado4, parciales4))
     
     print("INTERPRETACIÓN:")
     print(f"  Con lluvia fuerte, la probabilidad de asistir a la cita es")
@@ -175,10 +183,10 @@ def ejecutar_ejemplo_basico():
     print()
     
     evidencia5 = {'Train': 'on_time'}
-    resultado5 = motor.inferencia({'Appointment': None}, evidencia5)
+    resultado5, parciales5 = motor.inferencia({'Appointment': None}, evidencia5, return_parciales=True)
     
     motor.mostrar_traza()
-    imprimir_resultados(resultado5)
+    imprimir_resultados((resultado5, parciales5))
     
     print("INTERPRETACIÓN:")
     print(f"  Si el tren llega a tiempo, la probabilidad de asistir a la cita es")
@@ -261,10 +269,10 @@ def ejecutar_consulta_personalizada(red, motor):
     
     # Realizar inferencia
     print(f"\nRealizando inferencia: P({var_consulta} | {evidencia})")
-    resultado = motor.inferencia({var_consulta: None}, evidencia)
+    resultado, parciales = motor.inferencia({var_consulta: None}, evidencia, return_parciales=True)
     
     motor.mostrar_traza()
-    imprimir_resultados(resultado)
+    imprimir_resultados((resultado, parciales))
 
 def menu_principal():
     """

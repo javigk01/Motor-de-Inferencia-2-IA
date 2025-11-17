@@ -47,7 +47,7 @@ class MotorInferencia:
             print(linea)
         print()
     
-    def inferencia(self, consulta, evidencia):
+    def inferencia(self, consulta, evidencia, return_parciales=False):
         """
         Realiza inferencia por enumeración.
         
@@ -103,24 +103,22 @@ class MotorInferencia:
         
         # Calcular la distribución para cada valor posible de la variable de consulta
         resultados = {}
-        
+        parciales = {}
         for valor_consulta in nodo_consulta.valores:
             self.agregar_traza(f"{'─'*70}")
             self.agregar_traza(f"Calculando P({var_consulta}={valor_consulta} | {evidencia})")
             self.agregar_traza(f"{'─'*70}")
-            
             # Crear asignación completa con la consulta
             asignacion_consulta = evidencia.copy()
             asignacion_consulta[var_consulta] = valor_consulta
-            
             # Enumerar sobre todas las variables ocultas
             probabilidad = self._enumerar_todo(
                 list(self.red.nodos.keys()),
                 asignacion_consulta,
                 variables_ocultas
             )
-            
             resultados[valor_consulta] = probabilidad
+            parciales[valor_consulta] = probabilidad
             self.agregar_traza(f"\nResultado parcial: P({var_consulta}={valor_consulta}, {evidencia}) = {probabilidad:.6f}")
             self.agregar_traza("")
         
@@ -144,15 +142,14 @@ class MotorInferencia:
             prob_normalizada = prob / suma_total if suma_total > 0 else 0
             resultados_normalizados[valor] = prob_normalizada
             self.agregar_traza(f"P({var_consulta}={valor} | {evidencia}) = {prob:.6f} / {suma_total:.6f} = {prob_normalizada:.6f}")
-        
         self.agregar_traza("")
         self.agregar_traza(f"{'='*70}")
         self.agregar_traza(f"RESULTADO FINAL")
         self.agregar_traza(f"{'='*70}")
-        
         for valor, prob in resultados_normalizados.items():
             self.agregar_traza(f"P({var_consulta}={valor} | {evidencia}) = {prob:.6f} ({prob*100:.2f}%)")
-        
+        if return_parciales:
+            return resultados_normalizados, parciales
         return resultados_normalizados
     
     def _enumerar_todo(self, variables, evidencia, variables_ocultas):
