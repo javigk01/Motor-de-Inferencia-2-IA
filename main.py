@@ -75,6 +75,8 @@ def ejecutar_ejemplo_basico():
     # Crear motor de inferencia
     motor = MotorInferencia(red)
     
+    import sys
+
     # Pausa para que el usuario pueda revisar
     print("\n" + "="*80)
     input("Presiona ENTER para continuar con los ejemplos de inferencia...")
@@ -295,23 +297,29 @@ def main():
     """
     Función principal del programa.
     """
-    # Cargar la red bayesiana
+    import sys
+    if len(sys.argv) != 3:
+        print("\nUso obligatorio: py main.py <estructura.txt> <probabilidades.txt>")
+        print("Ejemplo: py main.py estructura_red.txt probabilidades.txt\n")
+        print("Debe especificar ambos archivos. El programa terminará.\n")
+        sys.exit(1)
+    archivo_estructura = sys.argv[1]
+    archivo_probabilidades = sys.argv[2]
+
     red = RedBayesiana()
-    
     try:
-        red.cargar_estructura('estructura_red.txt')
-        red.cargar_probabilidades('probabilidades.txt')
+        red.cargar_estructura(archivo_estructura)
+        red.cargar_probabilidades(archivo_probabilidades)
     except FileNotFoundError as e:
         print(f"\nError: No se pudo cargar la red bayesiana.")
-        print(f"Asegúrese de que los archivos 'estructura_red.txt' y 'probabilidades.txt' existen.")
+        print(f"Asegúrese de que los archivos '{archivo_estructura}' y '{archivo_probabilidades}' existen.")
         print(f"Detalle: {e}")
-        return
-    
+        sys.exit(1)
+
     motor = MotorInferencia(red)
-    
+
     while True:
         opcion = menu_principal()
-        
         if opcion == '1':
             ejecutar_ejemplo_basico()
         elif opcion == '2':
@@ -327,5 +335,11 @@ def main():
         else:
             print("\nOpción no válida. Por favor, seleccione una opción del 1 al 5.")
 
+
 if __name__ == "__main__":
-    main()
+    import sys
+    try:
+        main()
+    except KeyboardInterrupt:
+        print("\nAcabando programa...")
+        sys.exit(0)
