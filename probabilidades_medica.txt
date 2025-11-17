@@ -1,0 +1,26 @@
+# Tablas de Probabilidad Condicional
+# Formato: Nodo | Valores_posibles | Padres (si tiene) | Probabilidades
+
+# Gripe (nodo raíz, sin padres)
+[Gripe]
+values: gripe, no_gripe
+P(Gripe=gripe) = 0.1
+P(Gripe=no_gripe) = 0.9
+
+# Fiebre (depende de Gripe)
+[Fiebre]
+values: tiene, no_tiene
+parents: Gripe
+P(Fiebre=tiene | Gripe=gripe) = 0.8
+P(Fiebre=no_tiene | Gripe=gripe) = 0.2
+P(Fiebre=tiene | Gripe=no_gripe) = 0.2
+P(Fiebre=no_tiene | Gripe=no_gripe) = 0.8
+
+# DolorCabeza (depende de Gripe)
+[DolorCabeza]
+values: si, no
+parents: Gripe
+P(DolorCabeza=si | Gripe=gripe) = 0.7
+P(DolorCabeza=no | Gripe=gripe) = 0.3
+P(DolorCabeza=si | Gripe=no_gripe) = 0.1
+P(DolorCabeza=no | Gripe=no_gripe) = 0.9

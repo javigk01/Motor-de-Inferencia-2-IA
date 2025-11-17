@@ -53,174 +53,78 @@ def imprimir_resultados(resultados):
         print(fila)
     print("─"*70 + "\n")
 
-def ejecutar_ejemplo_basico():
+def ejecutar_ejemplo_basico(archivo_estructura, archivo_probabilidades):
     """
-    Ejecuta el ejemplo básico de la Red Bayesiana con inferencias.
+    Ejecuta el ejemplo básico de la Red Bayesiana con inferencias usando los archivos de entrada.
     """
     imprimir_titulo("MOTOR DE INFERENCIA POR ENUMERACIÓN - RED BAYESIANA")
-    
+
     # Crear red bayesiana
     red = RedBayesiana()
-    
+
     # Cargar estructura y probabilidades
-    red.cargar_estructura('estructura_red.txt')
-    red.cargar_probabilidades('probabilidades.txt')
-    
+    red.cargar_estructura(archivo_estructura)
+    red.cargar_probabilidades(archivo_probabilidades)
+
     # Mostrar estructura
     red.mostrar_estructura()
-    
+
     # Mostrar tablas de probabilidad
     red.mostrar_tablas_probabilidad()
-    
+
     # Crear motor de inferencia
     motor = MotorInferencia(red)
-    
-    import sys
 
     # Pausa para que el usuario pueda revisar
     print("\n" + "="*80)
     input("Presiona ENTER para continuar con los ejemplos de inferencia...")
-    
-    # =========================================================================
-    # EJEMPLO 1: ¿Cuál es la probabilidad de llegar a la cita dado que 
-    #            hay lluvia ligera y hay mantenimiento?
-    # =========================================================================
-    imprimir_titulo("EJEMPLO 1: P(Appointment | Rain=light, Maintenance=yes)")
-    
-    print("Pregunta: ¿Cuál es la probabilidad de llegar a la cita (attend/miss)")
-    print("          dado que hay lluvia ligera y hay mantenimiento programado?")
+
+    # Detectar nodos para ejemplos automáticos
+    nodos = list(red.nodos.keys())
+    if len(nodos) < 2:
+        print("No hay suficientes nodos para ejemplos automáticos.")
+        return
+
+    # Ejemplo 1: Probabilidad del primer nodo dado el segundo (si es posible)
+    imprimir_titulo(f"EJEMPLO 1: P({nodos[0]} | {nodos[1]})")
+    print(f"Pregunta: ¿Cuál es la probabilidad de {nodos[0]} dado {nodos[1]}?")
     print()
-    
-    evidencia1 = {'Rain': 'light', 'Maintenance': 'yes'}
-    resultado1, parciales1 = motor.inferencia({'Appointment': None}, evidencia1, return_parciales=True)
-    
+    evidencia1 = {nodos[1]: red.nodos[nodos[1]].valores[0]}
+    resultado1, parciales1 = motor.inferencia({nodos[0]: None}, evidencia1, return_parciales=True)
     motor.mostrar_traza()
     imprimir_resultados((resultado1, parciales1))
-    
-    # Interpretación
     print("INTERPRETACIÓN:")
-    print(f"  Con lluvia ligera y mantenimiento, la probabilidad de asistir a la cita es")
-    print(f"  {resultado1['attend']*100:.2f}% y de perderla es {resultado1['miss']*100:.2f}%")
+    print(f"  Con {nodos[1]}={red.nodos[nodos[1]].valores[0]}, la probabilidad de {nodos[0]} es:")
+    for val in resultado1:
+        print(f"  {val}: {resultado1[val]*100:.2f}%")
     print()
-    
     input("Presiona ENTER para continuar con el siguiente ejemplo...")
-    
-    # =========================================================================
-    # EJEMPLO 2: ¿Cuál es la probabilidad de que el tren llegue a tiempo
-    #            sin ninguna evidencia?
-    # =========================================================================
-    imprimir_titulo("EJEMPLO 2: P(Train) - Sin evidencia")
-    
-    print("Pregunta: ¿Cuál es la probabilidad de que el tren llegue a tiempo")
-    print("          sin conocer ninguna información adicional?")
+
+    # Ejemplo 2: Probabilidad del segundo nodo sin evidencia
+    imprimir_titulo(f"EJEMPLO 2: P({nodos[1]}) - Sin evidencia")
+    print(f"Pregunta: ¿Cuál es la probabilidad de {nodos[1]} sin evidencia?")
     print()
-    
     evidencia2 = {}
-    resultado2, parciales2 = motor.inferencia({'Train': None}, evidencia2, return_parciales=True)
-    
+    resultado2, parciales2 = motor.inferencia({nodos[1]: None}, evidencia2, return_parciales=True)
     motor.mostrar_traza()
     imprimir_resultados((resultado2, parciales2))
-    
     print("INTERPRETACIÓN:")
-    print(f"  Sin información adicional, la probabilidad de que el tren llegue a tiempo es")
-    print(f"  {resultado2['on_time']*100:.2f}% y de que se retrase es {resultado2['delayed']*100:.2f}%")
+    for val in resultado2:
+        print(f"  {val}: {resultado2[val]*100:.2f}%")
     print()
-    
     input("Presiona ENTER para continuar con el siguiente ejemplo...")
-    
-    # =========================================================================
-    # EJEMPLO 3: ¿Cuál es la probabilidad del estado del tren dado que
-    #            no hay lluvia?
-    # =========================================================================
-    imprimir_titulo("EJEMPLO 3: P(Train | Rain=none)")
-    
-    print("Pregunta: ¿Cuál es la probabilidad del estado del tren")
-    print("          sabiendo que no hay lluvia?")
+
+    # Ejemplo 3: Probabilidad del último nodo dado el primero
+    imprimir_titulo(f"EJEMPLO 3: P({nodos[-1]} | {nodos[0]})")
+    print(f"Pregunta: ¿Cuál es la probabilidad de {nodos[-1]} dado {nodos[0]}?")
     print()
-    
-    evidencia3 = {'Rain': 'none'}
-    resultado3, parciales3 = motor.inferencia({'Train': None}, evidencia3, return_parciales=True)
-    
+    evidencia3 = {nodos[0]: red.nodos[nodos[0]].valores[0]}
+    resultado3, parciales3 = motor.inferencia({nodos[-1]: None}, evidencia3, return_parciales=True)
     motor.mostrar_traza()
     imprimir_resultados((resultado3, parciales3))
-    
     print("INTERPRETACIÓN:")
-    print(f"  Sin lluvia, la probabilidad de que el tren llegue a tiempo es")
-    print(f"  {resultado3['on_time']*100:.2f}% y de que se retrase es {resultado3['delayed']*100:.2f}%")
-    print()
-    
-    input("Presiona ENTER para continuar con el siguiente ejemplo...")
-    
-    # =========================================================================
-    # EJEMPLO 4: ¿Cuál es la probabilidad de asistir a la cita sabiendo
-    #            que hay lluvia fuerte?
-    # =========================================================================
-    imprimir_titulo("EJEMPLO 4: P(Appointment | Rain=heavy)")
-    
-    print("Pregunta: ¿Cuál es la probabilidad de asistir a la cita")
-    print("          sabiendo que hay lluvia fuerte?")
-    print()
-    
-    evidencia4 = {'Rain': 'heavy'}
-    resultado4, parciales4 = motor.inferencia({'Appointment': None}, evidencia4, return_parciales=True)
-    
-    motor.mostrar_traza()
-    imprimir_resultados((resultado4, parciales4))
-    
-    print("INTERPRETACIÓN:")
-    print(f"  Con lluvia fuerte, la probabilidad de asistir a la cita es")
-    print(f"  {resultado4['attend']*100:.2f}% y de perderla es {resultado4['miss']*100:.2f}%")
-    print()
-    
-    input("Presiona ENTER para continuar con el siguiente ejemplo...")
-    
-    # =========================================================================
-    # EJEMPLO 5: ¿Cuál es la probabilidad de asistir a la cita sabiendo
-    #            que el tren llegó a tiempo?
-    # =========================================================================
-    imprimir_titulo("EJEMPLO 5: P(Appointment | Train=on_time)")
-    
-    print("Pregunta: ¿Cuál es la probabilidad de asistir a la cita")
-    print("          sabiendo que el tren llegó a tiempo?")
-    print()
-    
-    evidencia5 = {'Train': 'on_time'}
-    resultado5, parciales5 = motor.inferencia({'Appointment': None}, evidencia5, return_parciales=True)
-    
-    motor.mostrar_traza()
-    imprimir_resultados((resultado5, parciales5))
-    
-    print("INTERPRETACIÓN:")
-    print(f"  Si el tren llega a tiempo, la probabilidad de asistir a la cita es")
-    print(f"  {resultado5['attend']*100:.2f}% (directamente de la tabla de probabilidad)")
-    print()
-    
-    # =========================================================================
-    # RESUMEN
-    # =========================================================================
-    imprimir_titulo("RESUMEN DE RESULTADOS")
-    
-    print("Comparación de escenarios:\n")
-    
-    print(f"1. Con lluvia ligera y mantenimiento:")
-    print(f"   P(attend) = {resultado1['attend']*100:.2f}%\n")
-    
-    print(f"2. Sin evidencia (caso general):")
-    print(f"   P(Train=on_time) = {resultado2['on_time']*100:.2f}%\n")
-    
-    print(f"3. Sin lluvia:")
-    print(f"   P(Train=on_time) = {resultado3['on_time']*100:.2f}%\n")
-    
-    print(f"4. Con lluvia fuerte:")
-    print(f"   P(attend) = {resultado4['attend']*100:.2f}%\n")
-    
-    print(f"5. Si el tren llega a tiempo:")
-    print(f"   P(attend) = {resultado5['attend']*100:.2f}%\n")
-    
-    print("Conclusiones:")
-    print("  - El mantenimiento y la lluvia afectan negativamente la puntualidad del tren")
-    print("  - La puntualidad del tren es el factor más determinante para asistir a la cita")
-    print("  - Incluso con lluvia fuerte, hay una probabilidad razonable de asistir")
+    for val in resultado3:
+        print(f"  {val}: {resultado3[val]*100:.2f}%")
     print()
 
 def ejecutar_consulta_personalizada(red, motor):
@@ -321,7 +225,7 @@ def main():
     while True:
         opcion = menu_principal()
         if opcion == '1':
-            ejecutar_ejemplo_basico()
+            ejecutar_ejemplo_basico(archivo_estructura, archivo_probabilidades)
         elif opcion == '2':
             ejecutar_consulta_personalizada(red, motor)
         elif opcion == '3':
