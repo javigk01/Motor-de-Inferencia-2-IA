@@ -1,0 +1,7 @@
+# Estructura de la Red Bayesiana - Desempeño Académico
+# Formato: Nodo_Padre -> Nodo_Hijo
+# Un nodo sin padres (raíz) no aparece como hijo
+
+A -> C
+C -> S
+S -> D

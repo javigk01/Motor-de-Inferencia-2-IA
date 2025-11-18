@@ -1,0 +1,35 @@
+# Tablas de Probabilidad Condicional - Desempeño Académico
+# Formato: Nodo | Valores_posibles | Padres (si tiene) | Probabilidades
+
+# A: Carga académica (nodo raíz, sin padres)
+[A]
+values: Alta, Baja
+P(A=Alta) = 0.6
+P(A=Baja) = 0.4
+
+# C: Consumo de cafeína (depende de A)
+[C]
+values: Si, No
+parents: A
+P(C=Si | A=Alta) = 0.8
+P(C=No | A=Alta) = 0.2
+P(C=Si | A=Baja) = 0.3
+P(C=No | A=Baja) = 0.7
+
+# S: Calidad del sueño (depende de C)
+[S]
+values: Mal, Bien
+parents: C
+P(S=Mal | C=Si) = 0.9
+P(S=Bien | C=Si) = 0.1
+P(S=Mal | C=No) = 0.2
+P(S=Bien | C=No) = 0.8
+
+# D: Desempeño académico (depende de S)
+[D]
+values: Malo, Bueno
+parents: S
+P(D=Malo | S=Mal) = 0.85
+P(D=Bueno | S=Mal) = 0.15
+P(D=Malo | S=Bien) = 0.10
+P(D=Bueno | S=Bien) = 0.90
